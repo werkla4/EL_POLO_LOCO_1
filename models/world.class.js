@@ -1,40 +1,60 @@
 class World {
     canvas;
     ctx;
+    keyboard;
+    camera_x = 0;
 
     character = new Character();
-    enemies = [
-        new Chicken(),
-        new Chicken(),
-        new Chicken()
-    ];
-    clouds = [
-        new Cloud()
-    ];
+    level = level1;
 
     draw() {
         // clear screen
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
-        this.ctx.drawImage(this.character.img, this.character.x, this.character.y, this.character.width, this.character.height);
-        
-        this.enemies.forEach(elm => {
-            this.ctx.drawImage(elm.img, elm.x, elm.y, elm.width, elm.height);
-        })
+        this.ctx.translate(this.camera_x, 0);
 
-        this.clouds.forEach(cloud => {
-            this.ctx.drawImage(cloud.img, cloud.x, cloud.y, cloud.width, cloud.height);
-        })
+        this.addObjectsToMap(this.level.backgroundObjects);
+        this.addToMap(this.character);
+        this.addObjectsToMap(this.level.enemies);
+        this.addObjectsToMap(this.level.clouds);
+
+        this.ctx.translate(-this.camera_x, 0);
 
         let self = this;
-        requestAnimationFrame(()=>{
+        requestAnimationFrame(() => {
             self.draw()
         });
     }
 
-    constructor(canvas){
+    addObjectsToMap(objects) {
+        objects.forEach(obj => {
+            this.addToMap(obj);
+        })
+    }
+
+    setWorld() {
+        this.character.world = this;
+    }
+
+    addToMap(mo) {
+        if (mo.otherDirection) {
+            this.ctx.save();
+            this.ctx.translate(mo.width, 0);
+            this.ctx.scale(-1, 1);
+            mo.x = mo.x * -1;
+        }
+        this.ctx.drawImage(mo.img, mo.x, mo.y, mo.width, mo.height);
+        if (mo.otherDirection) {
+            mo.x = mo.x * -1;
+            this.ctx.restore();
+        }
+    }
+
+    constructor(canvas, keyboard) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
+        this.keyboard = keyboard;
         this.draw();
+        this.setWorld();
     }
 }
