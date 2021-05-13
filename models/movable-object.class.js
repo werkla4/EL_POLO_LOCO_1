@@ -1,43 +1,49 @@
-class MovableObject {
-    x = 100;
-    y = 290;
-    height = 150;
-    width = 100;
+class MovableObject extends DrawableObjects {
     speed = 0.25;
-    img;
-    imageCache = [];
-    currentImage = 0;
+    energy = 100;
     otherDirection = false;
     speed_y = 0;
     acceleration = 2.5;
+    lastHit = 0;
 
-    isAboveGround(){
-        return this.y <= 200;
+    isAboveGround() {
+        if(this instanceof ThrowableObjects){
+            return true;
+        }
+        else{
+            return this.y <= 200;
+        }        
+    }
+
+    hit(){
+        this.energy -= 0.5;
+        if(this.energy <= 0){
+            this.energy = 0;
+        }
+        else{
+            this.lastHit = new Date().getTime();
+        }
+    }
+
+    isDeath(){
+        return this.energy == 0;
+    }
+
+    isHurt(){
+        let timepassed = new Date().getTime() - this.lastHit; // difference in ms
+        timepassed /= 1000; // difference in sec
+        return timepassed < 1;
     }
 
     applyGravity() {
         setInterval(() => {
-            if(this.isAboveGround() || this.speed_y > 0){
+            if (this.isAboveGround() || this.speed_y > 0) {
                 this.y -= this.speed_y;
                 this.speed_y -= this.acceleration;
-            }            
+            }
         }, 1000 / 25);
     }
 
-    // loadImages(['img/test1.png', 'img/test2.png', 'img/test3.png']);
-    loadImages(paths) {
-        paths.forEach(path => {
-            let img = new Image();
-            img.src = path;
-            this.imageCache[path] = img;
-        });
-    }
-
-    // loadImage('img/test1.png');
-    loadImage(path) {
-        this.img = new Image();
-        this.img.src = path;
-    }
 
     moveRight() {
         // walk right
@@ -49,21 +55,24 @@ class MovableObject {
         this.x -= this.speed;
     }
 
-    setWidthHeight(factor) {
-        this.height = this.img.height * factor;
-        this.width = this.img.width * factor;
-    }
-
-    playAnimation(IMAGES_WALKING) {
+    playAnimation(imgPaths) {
         // walk animation
-        let i = this.currentImage % IMAGES_WALKING.length;
+        let i = this.currentImage % imgPaths.length;
         // i = 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, ...
-        let path = IMAGES_WALKING[i];
+        let path = imgPaths[i];
         this.img = this.imageCache[path];
         this.currentImage++;
     }
 
-    jump(){
+    jump() {
         this.speed_y = 30;
+    }
+
+    // character.isColliding(chicken);
+    isColliding(mo){
+        return this.x + this.width > mo.x &&
+            this.y + this.height > mo.y &&
+            this.x < mo.x &&
+            this.y < mo.y + mo.height;
     }
 }
