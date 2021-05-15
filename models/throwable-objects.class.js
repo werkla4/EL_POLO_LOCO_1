@@ -1,17 +1,53 @@
-class ThrowableObjects extends MovableObject{
-    constructor(x, y){
-        super().loadImage('img/7.Marcadores/Icono/Botella.png');
-        this.setWidthHeight(0.4);
-        this.x = x;
-        this.y = y;
-        this.throw();
+class ThrowableObjects extends MovableObject {
+
+    throwOtherDirection = false;
+    isBroken = false;
+    sound;
+    throw_step_x = 0;
+
+    throw(characterX, characterY, world) {
+        if (this.isThrowing) { return; }
+
+        this.world = world;
+        this.speed_y = 30;
+        this.throw_step_x = 7;
+
+        this.positionThrowObject(world);
+
+        this.throwOtherDirection = world.character.otherDirection;
+        this.isThrowing = true;
     }
 
-    throw(){        
-        this.speed_y = 25;
+    playSound(){
+        this.sound.play();
+        this.deleteModus = true;
+    }
+
+    positionThrowObject(world) {
+        if (world.character.otherDirection) {
+            this.x = world.character.x - 15;
+            this.y = world.character.y + 100;
+        } else {
+            this.x = world.character.x + 70;
+            this.y = world.character.y + 100;
+        }
+    }
+
+    checkHitGround(){
+        if(this.y > 380){
+            this.isBroken = true;
+        }       
+    }
+
+    update() {
+        if (this.isAboveGround() && !this.throwOtherDirection) {
+            this.x += this.throw_step_x;
+        }
+        if (this.isAboveGround() && this.throwOtherDirection) {
+            this.x -= this.throw_step_x;
+        }
         this.applyGravity();
-        setInterval(()=>{
-            this.x += 7;
-        }, 1000 / 60);
+
+        this.checkHitGround();
     }
 }

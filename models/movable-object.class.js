@@ -5,45 +5,56 @@ class MovableObject extends DrawableObjects {
     speed_y = 0;
     acceleration = 2.5;
     lastHit = 0;
+    world;
+    lastMoveTime = new Date().getTime();
 
     isAboveGround() {
-        if(this instanceof ThrowableObjects){
+        if (this instanceof ThrowableObjects) {
             return true;
         }
-        else{
+        else {
             return this.y <= 200;
-        }        
+        }
     }
 
-    hit(){
+    isMovingTimestamp(){
+        this.lastMoveTime = new Date().getTime();
+    }
+
+    isTired(){
+        return (new Date().getTime() - this.lastMoveTime) / 1000 < 2;
+    }
+
+    isSleeping(){
+        return (new Date().getTime() - this.lastMoveTime) / 1000 >= 2;
+    }
+
+    hit() {
         this.energy -= 0.5;
-        if(this.energy <= 0){
+        if (this.energy <= 0) {
             this.energy = 0;
         }
-        else{
+        else {
             this.lastHit = new Date().getTime();
         }
     }
 
-    isDeath(){
+    isDeath() {
         return this.energy == 0;
     }
 
-    isHurt(){
+    isHurt() {
         let timepassed = new Date().getTime() - this.lastHit; // difference in ms
         timepassed /= 1000; // difference in sec
         return timepassed < 1;
     }
 
     applyGravity() {
-        setInterval(() => {
-            if (this.isAboveGround() || this.speed_y > 0) {
-                this.y -= this.speed_y;
-                this.speed_y -= this.acceleration;
-            }
-        }, 1000 / 25);
+        if (this.isAboveGround() || this.speed_y > 0) {
+            this.y -= this.speed_y;
+            this.speed_y -= this.acceleration;
+        }
     }
-
 
     moveRight() {
         // walk right
@@ -69,10 +80,23 @@ class MovableObject extends DrawableObjects {
     }
 
     // character.isColliding(chicken);
-    isColliding(mo){
-        return this.x + this.width > mo.x &&
+    isColliding(mo) {
+        // is death
+        if(mo.isDeath()){ return false; }
+        // is alive cand can hit
+        return (
+            this.x + this.width > mo.x &&
             this.y + this.height > mo.y &&
             this.x < mo.x &&
-            this.y < mo.y + mo.height;
+            this.y < mo.y + mo.height)
+            ||
+            (this.x < mo.x + mo.width &&
+            this.x + this.width > mo.x &&
+            this.y < mo.y &&
+            this.y + this.height > mo.y)
+            ||
+            (this.x > mo.x && // end Boss 
+            this.x < mo.x + mo.width &&
+            this.y > mo.y );
     }
 }
