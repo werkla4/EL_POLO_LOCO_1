@@ -4,6 +4,7 @@ class ThrowableObjects extends MovableObject {
     isBroken = false;
     sound;
     throw_step_x = 0;
+    isThrowing = false;
 
     throw(characterX, characterY, world) {
         if (this.isThrowing) { return; }

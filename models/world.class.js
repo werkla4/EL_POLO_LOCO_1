@@ -7,6 +7,7 @@ class World {
     character = new Character();
     level = level1;
     statusBar = new Statusbar();
+    bottleInfo = new BottleInfo();
     throwableObjects = [];
     canThrow = true;
     lastThrowTime;
@@ -31,7 +32,17 @@ class World {
             this.checkCollision();
             this.checkThrowableObjects();
             this.setCanThrow();
+            this.updateBottleInfo();
         }, 1000 / 60);
+    }
+
+    updateBottleInfo(){
+        if(this.throwableObjects.length > 0 && this.throwableObjects[0].isThrowing){
+            this.bottleInfo.setBottles(this.throwableObjects.length - 1);
+        }
+        else{
+            this.bottleInfo.setBottles(this.throwableObjects.length);
+        }
     }
 
     setCanThrow(){
@@ -60,6 +71,7 @@ class World {
         this.ctx.translate(-this.camera_x, 0);
         // space for fix objects
         this.addToMap(this.statusBar);
+        this.addToMap(this.bottleInfo);
 
         let self = this;
         requestAnimationFrame(() => {

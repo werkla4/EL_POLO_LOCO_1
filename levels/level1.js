@@ -7,7 +7,12 @@ const level1 = new Level(
             new Endboss()
         ],
         [
-            new Cloud()
+            new Cloud(100),
+            new Cloud(500),
+            new Cloud(1300),
+            new Cloud(1500),
+            new Cloud(2000),
+            new Cloud(2900)
         ],
         [
             new BackgroundObjects('../img/5.Fondo/Capas/5.cielo_1920-1080px.png', -719),

@@ -22,21 +22,25 @@ class DrawableObjects {
 
     // loadImage('img/test1.png');
     loadImage(path) {
-         this.img = new Image();
+        this.img = new Image();
         this.img.src = path;
+    }
+
+    getRandomInt(max) {
+        return Math.floor(Math.random() * max);
     }
 
     draw(ctx) {
         this.updateImgSize();
-        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);        
+        ctx.drawImage(this.img, this.x, this.y, this.width, this.height);
     }
 
-    updateImgSize(){
-        if(this.img.width != 0 && !this.imgSizeSet){
+    updateImgSize() {
+        if (this.img.width != 0 && !this.imgSizeSet) {
             this.height = this.img.height * this.imgSize;
             this.width = this.img.width * this.imgSize;
             this.imgSizeSet = true;
-        } 
+        }
     }
 
     setWidthHeight(factor) {
