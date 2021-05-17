@@ -1,0 +1,3 @@
+class Fullscreen extends ClickableObjects{
+    
+}

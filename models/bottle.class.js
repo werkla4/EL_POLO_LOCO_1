@@ -39,6 +39,6 @@ class Bottle extends ThrowableObjects {
         this.y = y;
         
         this.sound = new Audio('audio/glasDestroy.mp3');
-        this.sound.volume = 0.5
+        this.sound.volume = 0.5;
     }
 }

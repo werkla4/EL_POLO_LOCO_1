@@ -7,6 +7,8 @@ class World {
     character = new Character();
     level = level1;
     statusBar = new Statusbar();
+    gameOver = new GameOver();
+    fullscreen = new Fullscreen();
     bottleInfo = new BottleInfo();
     throwableObjects = [];
     canThrow = true;
@@ -17,18 +19,15 @@ class World {
         this.ctx = canvas.getContext('2d');
         this.keyboard = keyboard;
         this.setWorld();
-        this.checkCollision();
         this.runUpdates();
         this.draw();
-        this.initThrowTime();
-    }
-
-    initThrowTime(){
-        this.lastThrowTime = new Date().getTime() - 2001;
     }
 
     runUpdates() {
-        setInterval(() => {
+        this.lastThrowTime = new Date().getTime() - 2001; // init throwTime
+
+        let interval = setInterval(() => {
+            if(this.character.isDeath()){ clearInterval(interval); return; } // stop interval
             this.checkCollision();
             this.checkThrowableObjects();
             this.setCanThrow();
@@ -62,20 +61,29 @@ class World {
         this.ctx.translate(this.camera_x, 0);
 
         this.addObjectsToMap(this.level.backgroundObjects);
-        this.addToMap(this.character);
+        this.addObjectsToMap(this.level.clouds);
         this.addObjectsToMap(this.level.collectableObjects);
         this.addObjectsToMap(this.level.enemies);
-        this.addObjectsToMap(this.level.clouds);
+        this.addToMap(this.character);
         this.addObjectsToMap(this.throwableObjects);
-
+        
         this.ctx.translate(-this.camera_x, 0);
         // space for fix objects
         this.addToMap(this.statusBar);
         this.addToMap(this.bottleInfo);
+        this.addToMap(this.gameOver);
+
+        if(this.character.isDeath()){
+            setTimeout(()=>{
+                this.gameOver.show();
+            }, 1500);            
+        }
+
+        if(this.gameOver.isShow){ return; } // stop draw iteration
 
         let self = this;
         requestAnimationFrame(() => {
-            self.draw()
+            self.draw();
         });
     }
 
@@ -87,6 +95,7 @@ class World {
 
     setWorld() {
         this.character.world = this;
+        this.fullscreen.world = this;
         // set world for end Boss
         this.level.enemies.forEach(enemy => {
             if(enemy instanceof Endboss){ 
@@ -120,10 +129,19 @@ class World {
         this.ctx.restore();
     }
 
+    jumpOfSmallChicken(enemy){
+        return (this.character.isColliding(enemy) && this.character.speed_y < 0 && this.character.isAboveGround() && !(enemy instanceof Endboss));
+    }
+
     collisionCharacterWithEnemy() {
         // loop enemies
-        this.level.enemies.forEach((enemy) => {
-            if (this.character.isColliding(enemy)) {
+        this.level.enemies.forEach((enemy) => {   
+                     
+            if (this.jumpOfSmallChicken(enemy)) { 
+                enemy.hit(); 
+            }
+            else if (this.character.isColliding(enemy)) {
+                if(!this.character.isHurt()){ this.character.playHurtSound(); } // play one time
                 // character is colliding with enemy
                 this.character.hit();
                 this.statusBar.setPercentage(this.character.energy);

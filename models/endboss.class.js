@@ -45,26 +45,31 @@ class Endboss extends MovableObject {
     animate() {
         setInterval(() => {
             if(this.isWalkingToCharacter){
-                this.playAnimation(this.IMAGES_WALKING);
+                this.playAnimation(this.IMAGES_WALKING, 1);
             }  
             else if(this.energy == 0){
-                this.playAnimation(this.IMAGES_DEATH);
+                this.playAnimation(this.IMAGES_DEATH, 5);
             }  
             else if(this.nHits == 1){
-                this.playAnimation(this.IMAGES_ATTACK);
+                this.playAnimation(this.IMAGES_ATTACK, 1);
             }   
             else if(this.nHits == 2){
-                this.playAnimation(this.IMAGES_VERY_DAMAGED);
+                this.playAnimation(this.IMAGES_VERY_DAMAGED, 1);
             }   
             else if(this.isReadyForFight){
-                this.playAnimation(this.IMAGES_ALERT);
+                this.playAnimation(this.IMAGES_ALERT, 1);
             }            
         }, 1000 / 5);
     }
 
     update() {
         setInterval(() => {
-            this.walkToCharacter();
+            if(this.world.character.isDeath()){
+                this.pauseChickenSound();
+            }
+            else{
+                this.walkToCharacter();
+            }
         }, 1000 / 60);
     }
 
@@ -84,6 +89,7 @@ class Endboss extends MovableObject {
         this.energy -= 25;
         if(this.energy <= 0){ this.energy = 0; }
         if(this.nHits == 1){
+            this.playChickenSound();
             setTimeout(()=>{
                 this.giveBirth();
             }, 2000 * Math.random());

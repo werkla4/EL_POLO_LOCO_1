@@ -7,6 +7,16 @@ class MovableObject extends DrawableObjects {
     lastHit = 0;
     world;
     lastMoveTime = new Date().getTime();
+    slowImageIndx = 0;
+    chickenSound = new Audio('audio/chickenSound.mp3');
+
+    playChickenSound(){
+        this.chickenSound.play();
+    }
+
+    pauseChickenSound(){
+        this.chickenSound.pause();
+    }
 
     isAboveGround() {
         if (this instanceof ThrowableObjects) {
@@ -17,15 +27,15 @@ class MovableObject extends DrawableObjects {
         }
     }
 
-    isMovingTimestamp(){
+    isMovingTimestamp() {
         this.lastMoveTime = new Date().getTime();
     }
 
-    isTired(){
+    isTired() {
         return (new Date().getTime() - this.lastMoveTime) / 1000 < 2;
     }
 
-    isSleeping(){
+    isSleeping() {
         return (new Date().getTime() - this.lastMoveTime) / 1000 >= 2;
     }
 
@@ -66,23 +76,27 @@ class MovableObject extends DrawableObjects {
         this.x -= this.speed;
     }
 
-    playAnimation(imgPaths) {
-        // walk animation
-        let i = this.currentImage % imgPaths.length;
-        // i = 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, ...
-        let path = imgPaths[i];
-        this.img = this.imageCache[path];
-        this.currentImage++;
+    playAnimation(imgPaths, everyNth) {
+        this.slowImageIndx++;
+        if (this.slowImageIndx % everyNth == 0) {
+            // walk animation
+            let i = this.currentImage % imgPaths.length;
+            // i = 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, 0, 1, 2, 3, 4, 5, ...
+            let path = imgPaths[i];
+            this.img = this.imageCache[path];
+            this.currentImage++;
+        }
     }
 
     jump() {
         this.speed_y = 30;
+        this.currentImage = 0;
     }
 
     // character.isColliding(chicken);
     isColliding(mo) {
         // is death
-        if(mo.isDeath()){ return false; }
+        if (mo.isDeath()) { return false; }
         // is alive cand can hit
         return (
             this.x + this.width > mo.x &&
@@ -91,12 +105,12 @@ class MovableObject extends DrawableObjects {
             this.y < mo.y + mo.height)
             ||
             (this.x < mo.x + mo.width &&
-            this.x + this.width > mo.x &&
-            this.y < mo.y &&
-            this.y + this.height > mo.y)
+                this.x + this.width > mo.x &&
+                this.y < mo.y &&
+                this.y + this.height > mo.y)
             ||
             (this.x > mo.x && // end Boss 
-            this.x < mo.x + mo.width &&
-            this.y > mo.y );
+                this.x < mo.x + mo.width &&
+                this.y > mo.y);
     }
 }
