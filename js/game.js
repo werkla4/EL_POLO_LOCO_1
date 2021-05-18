@@ -17,11 +17,14 @@ window.addEventListener("keyup", (e) => {
 });
 
 function onClick(e){
-    // if(world.character.isDeath()){
-        world.fullscreen.click(canvas, e);
-    // }    
+    world.fullscreen.onClick(); 
+    world.clickNextLevel.onClick();
+    world.startGameClick.onClick(); 
 }
 
 function mouseMove(e){
     world.fullscreen.setClickPosition(canvas, e);
+    world.clickNextLevel.setClickPosition(canvas, e);
+    world.startGameClick.setClickPosition(canvas, e);
 }
+

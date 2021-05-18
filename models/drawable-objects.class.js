@@ -18,6 +18,13 @@ class DrawableObjects {
             img.src = path;
             this.imageCache[path] = img;
         });
+    }    
+
+    textFont(ctx){
+        ctx.font = "30px Arial white";
+        ctx.textBaseline = "center";
+        ctx.fillStyle = "white";
+        return ctx;
     }
 
     // loadImage('img/test1.png');

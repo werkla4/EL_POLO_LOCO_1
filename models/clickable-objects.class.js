@@ -4,6 +4,7 @@ class ClickableObjects extends DrawableObjects{
     y = 100;
     width = 100;
     height = 100;
+    isShow = false;
 
     setClickPosition(canvas, mouseClick){
         let canvasPositionX = canvas.getClientRects()[0].left;
@@ -15,12 +16,18 @@ class ClickableObjects extends DrawableObjects{
         this.updateCurser();
     }
 
+    mouseOverElement(){
+        return this.mousePositionX >= this.x && this.mousePositionX <= this.x + this.width && this.mousePositionY >= this.y && this.mousePositionY <= this.y + this.height;
+    }
+
     updateCurser(){
-        if(this.mousePositionX >= this.x && this.mousePositionX <= this.x + this.width && this.mousePositionY >= this.y && this.mousePositionY <= this.y + this.height){
+        if(this.mouseOverElement()){
             this.world.canvas.style.cursor = 'pointer';
         }
         else{
             this.world.canvas.style.cursor = 'default';
         }
     }
+
+    onClick(){}
 }

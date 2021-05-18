@@ -8,6 +8,9 @@ class World {
     level = level1;
     statusBar = new Statusbar();
     gameOver = new GameOver();
+    startScreen = new StartScreen();
+    clickNextLevel = new ClickNextLevel();
+    startGameClick = new StartGame();
     fullscreen = new Fullscreen();
     bottleInfo = new BottleInfo();
     throwableObjects = [];
@@ -32,6 +35,10 @@ class World {
             this.checkThrowableObjects();
             this.setCanThrow();
             this.updateBottleInfo();
+            this.fullscreen.update();
+            this.clickNextLevel.update();
+            this.startGameClick.update();
+            this.startScreen.update();
         }, 1000 / 60);
     }
 
@@ -72,6 +79,10 @@ class World {
         this.addToMap(this.statusBar);
         this.addToMap(this.bottleInfo);
         this.addToMap(this.gameOver);
+        this.addToMap(this.startScreen);
+        this.addToMap(this.fullscreen);
+        this.addToMap(this.clickNextLevel);
+        this.addToMap(this.startGameClick);
 
         if(this.character.isDeath()){
             setTimeout(()=>{
@@ -96,6 +107,9 @@ class World {
     setWorld() {
         this.character.world = this;
         this.fullscreen.world = this;
+        this.clickNextLevel.world = this;
+        this.startGameClick.world = this;
+        this.startScreen.world = this;
         // set world for end Boss
         this.level.enemies.forEach(enemy => {
             if(enemy instanceof Endboss){ 
@@ -139,6 +153,7 @@ class World {
                      
             if (this.jumpOfSmallChicken(enemy)) { 
                 enemy.hit(); 
+                enemy.playBreakNeckSound(); 
             }
             else if (this.character.isColliding(enemy)) {
                 if(!this.character.isHurt()){ this.character.playHurtSound(); } // play one time

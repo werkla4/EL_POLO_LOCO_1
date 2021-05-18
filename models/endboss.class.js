@@ -144,6 +144,4 @@ class Endboss extends MovableObject {
         this.animate();
         this.update();
     }
- 
-
 }

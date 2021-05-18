@@ -4,7 +4,7 @@ class Keyboard{
     DOWN = false;
     UP = false;
     SPACE = false;
-    KEY_D = false;
+    ESC = false;
 
     onKeyDown(e){
         if(e.code == "ArrowDown"){
@@ -24,6 +24,9 @@ class Keyboard{
         }
         else if(e.code == "KeyD"){
             this.KEY_D = true;
+        }
+        else if(e.code == "Escape"){
+            this.ESC = true;
         }
     }
 
@@ -45,6 +48,9 @@ class Keyboard{
         }
         else if(e.code == "KeyD"){
             this.KEY_D = false;
+        }
+        else if(e.code == "Escape"){
+            this.ESC = false;
         }
     }
 }

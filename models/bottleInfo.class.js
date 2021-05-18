@@ -18,11 +18,4 @@ class BottleInfo extends DrawableObjects {
         ctx = this.textFont(ctx);
         ctx.fillText(`${this.nBottles}`, 50, 80);   
     }
-
-    textFont(ctx){
-        ctx.font = "30px Arial white";
-        ctx.textBaseline = "center";
-        ctx.fillStyle = "white";
-        return ctx;
-    }
 }

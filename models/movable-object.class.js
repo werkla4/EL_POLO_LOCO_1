@@ -9,6 +9,15 @@ class MovableObject extends DrawableObjects {
     lastMoveTime = new Date().getTime();
     slowImageIndx = 0;
     chickenSound = new Audio('audio/chickenSound.mp3');
+    breakNeckSound = new Audio('audio/breakNeck.mp3');
+
+    playBreakNeckSound(){
+        this.breakNeckSound.play();
+    }
+
+    pauseBreakNeckSound(){
+        this.breakNeckSound.pause();
+    }
 
     playChickenSound(){
         this.chickenSound.play();
