@@ -19,6 +19,11 @@ class GameOver extends DrawableObjects{
         this.isShow = true;
     }
 
+    hide(){
+        this.setWidthHeight(0);
+        this.isShow = false;
+    }
+
     click(canvas, mouseClick){
         this.setClickPosition(canvas, mouseClick);
     }

@@ -12,22 +12,11 @@ class ClickableObjects extends DrawableObjects{
 
         this.mousePositionX = mouseClick.clientX - canvasPositionX;
         this.mousePositionY = mouseClick.clientY - canvasPositionY;
-
-        this.updateCurser();
     }
 
     mouseOverElement(){
         return this.mousePositionX >= this.x && this.mousePositionX <= this.x + this.width && this.mousePositionY >= this.y && this.mousePositionY <= this.y + this.height;
     }
-
-    updateCurser(){
-        if(this.mouseOverElement()){
-            this.world.canvas.style.cursor = 'pointer';
-        }
-        else{
-            this.world.canvas.style.cursor = 'default';
-        }
-    }
-
+    
     onClick(){}
 }

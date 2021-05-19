@@ -28,7 +28,23 @@ class StartGame extends ClickableObjects{
 
     onClick(){
         if(this.mouseOverElement()){
-            console.log('please start game :-)');
+            if(this.world.startScreen.isShow){
+                this.world.startScreen.hide();
+                this.hideElement();
+            }            
+
+            if(this.world.gameOver.isShow){
+                this.world.gameOver.hide();
+                this.world.runUpdates();
+                this.world.character.energy = 100;
+                this.world.character.x = 0;
+                this.world.loadLevel(level1); // dont works
+                this.world.setWorld();
+
+                this.world.draw();
+
+                console.log(level1);
+            }
         }
     }
 

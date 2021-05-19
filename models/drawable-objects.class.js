@@ -25,6 +25,13 @@ class DrawableObjects {
         ctx.textBaseline = "center";
         ctx.fillStyle = "white";
         return ctx;
+    }   
+
+    textFontSmall(ctx){
+        ctx.font = "15px Arial white";
+        ctx.textBaseline = "center";
+        ctx.fillStyle = "white";
+        return ctx;
     }
 
     // loadImage('img/test1.png');

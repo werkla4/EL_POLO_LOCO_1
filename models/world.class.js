@@ -5,7 +5,7 @@ class World {
     camera_x = 0;
 
     character = new Character();
-    level = level1;
+    level;
     statusBar = new Statusbar();
     gameOver = new GameOver();
     startScreen = new StartScreen();
@@ -21,24 +21,53 @@ class World {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.keyboard = keyboard;
-        this.setWorld();
+        this.loadLevel(level1); 
+        this.setWorld();    
+        this.startScreen.show();   
         this.runUpdates();
         this.draw();
+    }
+
+    resetStatus(){   
+        this.camera_x = 0;
+        this.character = new Character();
+        this.canThrow = true;
+        this.throwableObjects = [];
+        this.lastThrowTime = new Date().getTime() - 2001; // init throwTime
+        this.statusBar = new Statusbar();
+        this.bottleInfo = new BottleInfo();
+        this.setWorld(); 
+
+        this.loadLevel(level1); 
+    }
+
+    loadLevel(level){
+        this.level = level;
     }
 
     runUpdates() {
         this.lastThrowTime = new Date().getTime() - 2001; // init throwTime
 
         let interval = setInterval(() => {
-            if(this.character.isDeath()){ clearInterval(interval); return; } // stop interval
-            this.checkCollision();
-            this.checkThrowableObjects();
-            this.setCanThrow();
-            this.updateBottleInfo();
             this.fullscreen.update();
-            this.clickNextLevel.update();
-            this.startGameClick.update();
-            this.startScreen.update();
+
+            if(this.startScreen.isShow){ 
+                this.startScreen.waitingForStartingGame();  
+            }
+            else if(this.character.isDeath()){  
+                 // make nothing, waiting for restart game
+            }
+            else{
+                // game updates
+                this.checkCollision();
+                this.checkThrowableObjects();
+                this.setCanThrow();
+                this.updateBottleInfo();
+                this.clickNextLevel.update();
+                this.startGameClick.update();
+                this.startScreen.update();
+            }
+            
         }, 1000 / 60);
     }
 
@@ -64,29 +93,34 @@ class World {
     draw() {
         // clear screen
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
+        // able camera walking effect
         this.ctx.translate(this.camera_x, 0);
-
         this.addObjectsToMap(this.level.backgroundObjects);
         this.addObjectsToMap(this.level.clouds);
         this.addObjectsToMap(this.level.collectableObjects);
         this.addObjectsToMap(this.level.enemies);
         this.addToMap(this.character);
         this.addObjectsToMap(this.throwableObjects);
-        
+        // disable camera walking effect
         this.ctx.translate(-this.camera_x, 0);
         // space for fix objects
         this.addToMap(this.statusBar);
         this.addToMap(this.bottleInfo);
         this.addToMap(this.gameOver);
-        this.addToMap(this.startScreen);
+
+        if(this.startScreen.isShow){
+            this.addToMap(this.startScreen);
+            this.addToMap(this.startGameClick);
+        }
+
         this.addToMap(this.fullscreen);
         this.addToMap(this.clickNextLevel);
-        this.addToMap(this.startGameClick);
+        
 
         if(this.character.isDeath()){
             setTimeout(()=>{
                 this.gameOver.show();
+                this.startGameClick.showElement();
             }, 1500);            
         }
 

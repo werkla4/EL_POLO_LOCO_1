@@ -1,11 +1,13 @@
 class Fullscreen extends ClickableObjects{
     x = 680;
     y = 440;
+    width = 40;
+    height = 40;
 
     constructor(){
         super();
         this.loadImage('img/Icons/fullscreen.png');
-        this.setWidthHeight(0.15);        
+        this.setWidthHeight(0.15); 
     }
 
     hideElement(){
@@ -34,7 +36,7 @@ class Fullscreen extends ClickableObjects{
     }
 
     onClick(){
-        if(this.mouseOverElement()){
+        if(this.mouseOverElement()){            
             this.activateFullscreen();
         }
     }

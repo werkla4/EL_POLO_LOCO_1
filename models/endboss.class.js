@@ -48,6 +48,7 @@ class Endboss extends MovableObject {
                 this.playAnimation(this.IMAGES_WALKING, 1);
             }  
             else if(this.energy == 0){
+                this.y += 20
                 this.playAnimation(this.IMAGES_DEATH, 5);
             }  
             else if(this.nHits == 1){

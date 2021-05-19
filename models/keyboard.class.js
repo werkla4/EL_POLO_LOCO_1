@@ -5,6 +5,7 @@ class Keyboard{
     UP = false;
     SPACE = false;
     ESC = false;
+    ENTER = false;
 
     onKeyDown(e){
         if(e.code == "ArrowDown"){
@@ -27,6 +28,9 @@ class Keyboard{
         }
         else if(e.code == "Escape"){
             this.ESC = true;
+        }
+        else if(e.code == "NumpadEnter" || e.code == "Enter"){
+            this.ENTER = true;
         }
     }
 
@@ -51,6 +55,9 @@ class Keyboard{
         }
         else if(e.code == "Escape"){
             this.ESC = false;
+        }
+        else if(e.code == "NumpadEnter" || e.code == "Enter"){
+            this.ENTER = true;            
         }
     }
 }
