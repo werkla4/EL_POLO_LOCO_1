@@ -28,12 +28,14 @@ class StartGame extends ClickableObjects{
 
     onClick(){
         if(this.mouseOverElement()){
+            console.log('click start game');
             if(this.world.startScreen.isShow){
                 this.world.startScreen.hide();
                 this.hideElement();
             }            
 
             if(this.world.gameOver.isShow){
+                this.world.startGameClick.hideElement();
                 this.world.gameOver.hide();
                 this.world.runUpdates();
                 this.world.character.energy = 100;

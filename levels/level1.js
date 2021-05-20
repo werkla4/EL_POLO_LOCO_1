@@ -48,9 +48,20 @@ const level1 = new Level(
             new BackgroundObjects('../img/5.Fondo/Capas/1.suelo-fondo1/2.png', 5 * 719)
         ],
         [
-            new Bottle(300, 370),
             new Bottle(500, 370),
-            new Bottle(150, 370),
-            new Bottle(2800, 370)
+            new Bottle(600, 370),
+            new Bottle(1500, 370),
+            new Bottle(2600, 370),
+            new Coin(800, 300),
+            new Coin(850, 250),
+            new Coin(900, 200),
+            new Coin(950, 250),
+            new Coin(1000, 200),
+            new Coin(1850, 250),
+            new Coin(1900, 300),
+            new Coin(1950, 250),
+            new Coin(2800, 300),
+            new Coin(2800, 350),
+            new Coin(2800, 250)
         ]
 );

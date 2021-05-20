@@ -142,7 +142,5 @@ class Endboss extends MovableObject {
         this.x = 3000;
         this.y = -20;
         this.speed = 4;
-        this.animate();
-        this.update();
     }
 }
