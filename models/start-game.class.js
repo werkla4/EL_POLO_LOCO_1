@@ -35,17 +35,7 @@ class StartGame extends ClickableObjects{
             }            
 
             if(this.world.gameOver.isShow){
-                this.world.startGameClick.hideElement();
-                this.world.gameOver.hide();
-                this.world.runUpdates();
-                this.world.character.energy = 100;
-                this.world.character.x = 0;
-                this.world.loadLevel(level1); // dont works
-                this.world.setWorld();
-
-                this.world.draw();
-
-                console.log(level1);
+                window.location.href = '/index.html';
             }
         }
     }

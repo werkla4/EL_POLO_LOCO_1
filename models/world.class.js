@@ -48,14 +48,17 @@ class World {
     runUpdates() {
         this.lastThrowTime = new Date().getTime() - 2001; // init throwTime
 
-        let interval = setInterval(() => {
-            this.fullscreen.update();
+        let interval = setInterval(() => {            
 
             if (this.startScreen.isShow) {
                 this.startScreen.waitingForStartingGame();
             }
             else if (this.character.isDeath()) {
                 // make nothing, waiting for restart game
+            }
+            else if (this.levelFinished()) {
+                clearInterval(interval);
+                this.clickNextLevel.showElement();
             }
             else {
                 // game updates
@@ -65,10 +68,31 @@ class World {
                 this.updateBottleInfo();
                 this.clickNextLevel.update();
                 this.startGameClick.update();
-                this.startScreen.update();
+                this.startScreen.update();                
             }
 
         }, 1000 / 60);
+    }
+
+    levelFinished() {
+        if (this.allCoinsCollected() && this.endBossIsDeath()) {
+            let winSound = new Audio('audio/win.mp3');
+            winSound.volume = 0.2;
+            winSound.play();
+            return true;
+        }
+        return false;
+    }
+
+    endBossIsDeath() {
+        for (let i = 0; i < this.level.enemies.length; i++) {
+            if (this.level.enemies[i] instanceof Endboss) {
+                if (this.level.enemies[i].energy == 0) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     updateBottleInfo() {
@@ -93,6 +117,7 @@ class World {
     draw() {
         // clear screen
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.fullscreen.update();
         // able camera walking effect
         this.ctx.translate(this.camera_x, 0);
         this.addObjectsToMap(this.level.backgroundObjects);
@@ -247,10 +272,10 @@ class World {
         this.level.collectableObjects.splice(indx, 1);
     }
 
-    allCoinsCollected(){
+    allCoinsCollected() {
         let collectedAllCoins = true;
         this.level.collectableObjects.forEach((e) => {
-            if(e instanceof Coin){
+            if (e instanceof Coin) {
                 collectedAllCoins = false;
             }
         });
@@ -266,11 +291,6 @@ class World {
                 }
                 else if (this.level.collectableObjects[i] instanceof Coin) {
                     this.collectCoin(i);
-                    if(this.allCoinsCollected()){
-                        let winSound = new Audio('audio/win.mp3');
-                        winSound.volume = 0.2;
-                        winSound.play();
-                    }
                 }
             }
         }

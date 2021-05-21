@@ -44,10 +44,7 @@ class Endboss extends MovableObject {
 
     animate() {
         setInterval(() => {
-            if(this.isWalkingToCharacter){
-                this.playAnimation(this.IMAGES_WALKING, 1);
-            }  
-            else if(this.energy == 0){
+            if(this.energy == 0){
                 this.y += 20
                 this.playAnimation(this.IMAGES_DEATH, 5);
             }  
@@ -59,7 +56,10 @@ class Endboss extends MovableObject {
             }   
             else if(this.isReadyForFight){
                 this.playAnimation(this.IMAGES_ALERT, 1);
-            }            
+            }   
+            else if(this.isWalkingToCharacter){
+                this.playAnimation(this.IMAGES_WALKING, 1);
+            }           
         }, 1000 / 5);
     }
 
