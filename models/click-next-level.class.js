@@ -28,7 +28,8 @@ class ClickNextLevel extends ClickableObjects{
 
     onClick(){
         if(this.mouseOverElement()){
-            console.log('please next level :-)');
+            this.world.loadNextLevel();
+            this.world.stopwatch.start();
         }
     }
 

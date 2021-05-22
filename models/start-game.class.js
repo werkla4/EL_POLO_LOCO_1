@@ -28,10 +28,10 @@ class StartGame extends ClickableObjects{
 
     onClick(){
         if(this.mouseOverElement()){
-            console.log('click start game');
             if(this.world.startScreen.isShow){
                 this.world.startScreen.hide();
                 this.hideElement();
+                this.world.stopwatch.start();
             }            
 
             if(this.world.gameOver.isShow){

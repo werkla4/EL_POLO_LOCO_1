@@ -35,97 +35,115 @@ class Endboss extends MovableObject {
         'img/4.Secuencias_Enemy_gigantón-Doña_Gallinota-/4.Muerte/G24.png',
         'img/4.Secuencias_Enemy_gigantón-Doña_Gallinota-/4.Muerte/G25.png',
         'img/4.Secuencias_Enemy_gigantón-Doña_Gallinota-/4.Muerte/G26.png'];
-    
+
     isWalkingToCharacter = false;
     isReadyForFight = false;
-    nHits  = 0;
+    nHits = 0;
     characterX_StartWalkAnimation = 2500;
-    
+    nBirths = 1;
 
     animate() {
         setInterval(() => {
-            if(this.energy == 0){
+            if (this.energy == 0) {
                 this.y += 20
                 this.playAnimation(this.IMAGES_DEATH, 5);
-            }  
-            else if(this.nHits == 1){
+            }
+            else if (this.nHits == 1) {
                 this.playAnimation(this.IMAGES_ATTACK, 1);
-            }   
-            else if(this.nHits == 2){
+            }
+            else if (this.nHits == 2) {
                 this.playAnimation(this.IMAGES_VERY_DAMAGED, 1);
-            }   
-            else if(this.isReadyForFight){
+            }
+            else if (this.isReadyForFight) {
                 this.playAnimation(this.IMAGES_ALERT, 1);
-            }   
-            else if(this.isWalkingToCharacter){
+            }
+            else if (this.isWalkingToCharacter) {
                 this.playAnimation(this.IMAGES_WALKING, 1);
-            }           
+            }
         }, 1000 / 5);
     }
 
     update() {
         setInterval(() => {
-            if(this.world.character.isDeath()){
+            if (this.world.character.isDeath()) {
                 this.pauseChickenSound();
             }
-            else{
+            else {
                 this.walkToCharacter();
             }
         }, 1000 / 60);
     }
 
-    giveBirth(){
+    giveBirth() {
+        this.nBirths++;
         let kindOfChicken = Math.random() * 2;
-        // brown chicken
-        if(kindOfChicken <= 1){
+        
+        if (kindOfChicken <= 1) {
+            // brown chicken
             this.world.level.enemies.push(new Chicken(this.x + this.width / 2));
         }
-        else{
+        else { 
+            // yellow chicken
             this.world.level.enemies.push(new YellowChicken(this.x + this.width / 2));
         }
+        // set speed
+        this.world.level.enemies[this.world.level.enemies.length-1].speed = this.world.level.enemies[this.world.level.enemies.length-1].speed * this.nBirths * this.world.currentLevelId * 2;
     }
 
-    hit(){
+    hit() {
         this.nHits++;
         this.energy -= 25;
-        if(this.energy <= 0){ this.energy = 0; }
-        if(this.nHits == 1){
+        if (this.energy <= 0) { this.energy = 0; }
+        if (this.nHits == 1) {
             this.playChickenSound();
-            setTimeout(()=>{
+            setTimeout(() => {
                 this.giveBirth();
             }, 2000 * Math.random());
         }
-        if(this.nHits == 2){
-            setTimeout(()=>{
+        if (this.nHits == 2) {
+            setTimeout(() => {
                 this.giveBirth();
             }, 2000 * Math.random());
-            setTimeout(()=>{
+            setTimeout(() => {
                 this.giveBirth();
             }, 2000 * Math.random());
         }
-        if(this.nHits == 3){
-            setTimeout(()=>{
+        if (this.nHits == 3) {
+            setTimeout(() => {
                 this.giveBirth();
             }, 2000 * Math.random());
-            setTimeout(()=>{
+            setTimeout(() => {
                 this.giveBirth();
             }, 2000 * Math.random());
-            setTimeout(()=>{
+            setTimeout(() => {
                 this.giveBirth();
             }, 2000 * Math.random());
         }
     }
 
-    walkToCharacter(){
-        if(this.world.character.x >= this.characterX_StartWalkAnimation && !this.isWalkingToCharacter){
+    checkStartWalkToCharacter(){
+        if (this.world.character.x >= this.characterX_StartWalkAnimation && !this.isWalkingToCharacter) {
             this.isWalkingToCharacter = true;
+            this.world.energyEndboss.show();
         }
-        if(this.isWalkingToCharacter){
-            this.moveLeft();
-            if(this.x <= 2400){
-                this.isReadyForFight = true;
-                this.isWalkingToCharacter = false;
-                this.x = 2400
+    }
+
+    walkToCharacter() {
+        if (this.world.currentLevelId == 1) {
+            this.checkStartWalkToCharacter();
+            if (this.isWalkingToCharacter) {
+                this.moveLeft();
+                if (this.x <= 2400) {
+                    this.isReadyForFight = true;
+                    this.isWalkingToCharacter = false;
+                    this.x = 2400
+                }
+            }
+        }
+        else if (this.world.currentLevelId == 2) {
+            this.checkStartWalkToCharacter();
+            if (this.isWalkingToCharacter) {
+                this.moveLeft();
             }
         }
     }

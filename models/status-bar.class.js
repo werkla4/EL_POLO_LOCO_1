@@ -12,10 +12,28 @@ class Statusbar extends DrawableObjects{
         'img/7.Marcadores/Barra/Marcador vida/azul/100_.png'];
     percentage = 100;
 
-    constructor(){
+    constructor(character){
         super().loadImage('img/7.Marcadores/Barra/Marcador vida/azul/100_.png');
         this.loadImages(this.IMAGES_ENERGY);
         this.setWidthHeight(0.3);
+
+        if(character == 'character'){
+            this.x = 10;
+            this.y = 0;
+        }else if(character == 'endboss'){
+            this.x = 530;
+            this.y = 0;
+            this.setWidthHeight(0);
+        }
+
+    }
+
+    show(){
+        this.setWidthHeight(0.3);
+    }
+
+    hide(){
+        this.setWidthHeight(0);
     }
 
     // setPercentage(50);

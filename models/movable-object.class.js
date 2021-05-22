@@ -11,19 +11,19 @@ class MovableObject extends DrawableObjects {
     chickenSound = new Audio('audio/chickenSound.mp3');
     breakNeckSound = new Audio('audio/breakNeck.mp3');
 
-    playBreakNeckSound(){
+    playBreakNeckSound() {
         this.breakNeckSound.play();
     }
 
-    pauseBreakNeckSound(){
+    pauseBreakNeckSound() {
         this.breakNeckSound.pause();
     }
 
-    playChickenSound(){
+    playChickenSound() {
         this.chickenSound.play();
     }
 
-    pauseChickenSound(){
+    pauseChickenSound() {
         this.chickenSound.pause();
     }
 
@@ -106,20 +106,57 @@ class MovableObject extends DrawableObjects {
     isColliding(mo) {
         // is death
         if (mo.isDeath()) { return false; }
-        // is alive cand can hit
-        return (
-            this.x + this.width > mo.x &&
-            this.y + this.height > mo.y &&
-            this.x < mo.x &&
-            this.y < mo.y + mo.height)
-            ||
-            (this.x < mo.x + mo.width &&
-                this.x + this.width > mo.x &&
-                this.y < mo.y &&
-                this.y + this.height > mo.y)
-            ||
-            (this.x > mo.x && // end Boss 
-                this.x < mo.x + mo.width &&
-                this.y > mo.y);
+
+        let thisX = this.x;
+        let thisY = this.y;
+        let thisWidth = this.width;
+        let thisHeight = this.height;
+
+        let otherX = mo.x;
+        let otherY = mo.y;
+        let otherWidth = mo.width;
+        let otherHeight = mo.height;
+
+        if (this instanceof Character) {
+            thisY = thisY + (thisHeight / 2);
+            thisHeight /= 2;
+        }
+        if (mo instanceof Coin) {
+            otherY = otherY + (otherHeight / 3) + 10;
+            otherX = otherX + (otherWidth / 3);
+            otherHeight /= 3;
+            otherWidth /= 3;
+        }
+
+        if (mo instanceof Endboss) {
+            // is alive cand can hit
+            return this.collision1(thisX, thisY, thisWidth, thisHeight, otherX, otherY, otherHeight)
+                || this.collision2(thisX, thisY, thisWidth, thisHeight, otherX, otherY, otherWidth)
+                || this.thisBetweenMo(thisX, thisY, otherX, otherY, otherWidth);
+        }
+        else{
+            return this.collision1(thisX, thisY, thisWidth, thisHeight, otherX, otherY, otherHeight) 
+                || this.collision2(thisX, thisY, thisWidth, thisHeight, otherX, otherY,otherWidth)
+        }
+    }
+
+    collision1(thisX, thisY, thisWidth, thisHeight, otherX, otherY, otherHeight){
+           return ( thisX + thisWidth > otherX &&
+                    thisY + thisHeight > otherY &&
+                    thisX < otherX &&
+                    thisY < otherY + otherHeight);
+    }
+
+    collision2(thisX, thisY, thisWidth, thisHeight, otherX, otherY, otherWidth){
+           return ( thisX < otherX + otherWidth &&
+                    thisX + thisWidth > otherX &&
+                    thisY < otherY &&
+                    thisY + thisHeight > otherY);
+    }
+
+    thisBetweenMo(thisX, thisY, otherX, otherY, otherWidth) {
+        return thisX > otherX &&
+            thisX < otherX + otherWidth &&
+            thisY > otherY;
     }
 }

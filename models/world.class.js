@@ -5,9 +5,12 @@ class World {
     camera_x = 0;
 
     character = new Character();
+    currentLevelId = 0;
     level;
+    lastLevelID = 2; // game end
     coinInfo = new CoinInfo();
-    statusBar = new Statusbar();
+    energyCharacter = new Statusbar('character');
+    energyEndboss = new Statusbar('endboss');
     gameOver = new GameOver();
     startScreen = new StartScreen();
     clickNextLevel = new ClickNextLevel();
@@ -17,48 +20,47 @@ class World {
     throwableObjects = [];
     canThrow = true;
     lastThrowTime;
+    stopwatch = new Stopwatch();
+    gameEnd = false;
 
     constructor(canvas, keyboard) {
         this.canvas = canvas;
         this.ctx = canvas.getContext('2d');
         this.keyboard = keyboard;
-        this.loadLevel(level1);
+        this.loadNextLevel();
         this.setWorld();
         this.startScreen.show();
-        this.runUpdates();
         this.draw();
     }
 
-    resetStatus() {
-        this.camera_x = 0;
-        this.character = new Character();
-        this.canThrow = true;
-        this.throwableObjects = [];
-        this.lastThrowTime = new Date().getTime() - 2001; // init throwTime
-        this.statusBar = new Statusbar();
-        this.bottleInfo = new BottleInfo();
-        this.setWorld();
-        this.loadLevel(level1);
-    }
+    loadNextLevel() {
+        this.currentLevelId++;
+        if(this.currentLevelId == 1){ this.level = level1; }
+        else if(this.currentLevelId == 2){ this.level = level2; }
 
-    loadLevel(level) {
-        this.level = level;
+        // reset all and start game
+        this.clickNextLevel.hideElement();
+        this.throwableObjects = [];
+        this.coinInfo.nCoins = 0;
+        this.character.energy = 100;
+        this.character.x = 0;
+        this.energyCharacter.setPercentage(100);
+        this.energyEndboss.setPercentage(100);
+        this.energyEndboss.hide();
+        this.setWorld();
+        this.runUpdates();
     }
 
     runUpdates() {
         this.lastThrowTime = new Date().getTime() - 2001; // init throwTime
 
-        let interval = setInterval(() => {            
+        let interval = setInterval(() => { 
 
             if (this.startScreen.isShow) {
                 this.startScreen.waitingForStartingGame();
             }
-            else if (this.character.isDeath()) {
-                // make nothing, waiting for restart game
-            }
             else if (this.levelFinished()) {
-                clearInterval(interval);
-                this.clickNextLevel.showElement();
+                clearInterval(interval);                                          
             }
             else {
                 // game updates
@@ -74,11 +76,30 @@ class World {
         }, 1000 / 60);
     }
 
+    pauseAllChickenSounds(){
+        this.level.enemies.forEach((enemy)=>{
+            enemy.pauseChickenSound();
+        });
+    }
+
     levelFinished() {
+        if(this.gameEnd) { return true; }
         if (this.allCoinsCollected() && this.endBossIsDeath()) {
+            if(this.currentLevelId == this.lastLevelID){ this.gameEnd = true; }
+            this.stopwatch.addEllapsedTime();
             let winSound = new Audio('audio/win.mp3');
             winSound.volume = 0.2;
             winSound.play();
+            if(this.gameEnd){
+                // show score:
+                console.log(this.stopwatch.sumEllapsedTime());
+                this.startScreen.playSound();
+                this.pauseAllChickenSounds();
+            }else{
+                setTimeout(()=>{
+                    this.clickNextLevel.showElement();
+                }, 5000);  
+            }            
             return true;
         }
         return false;
@@ -130,7 +151,8 @@ class World {
         // disable camera walking effect
         this.ctx.translate(-this.camera_x, 0);
         // space for fix objects
-        this.addToMap(this.statusBar);
+        this.addToMap(this.energyCharacter);
+        this.addToMap(this.energyEndboss);
         this.addToMap(this.coinInfo);
         this.addToMap(this.bottleInfo);
         this.addToMap(this.gameOver);
@@ -143,13 +165,7 @@ class World {
         this.addToMap(this.fullscreen);
         this.addToMap(this.clickNextLevel);
 
-
-        if (this.character.isDeath()) {
-            setTimeout(() => {
-                this.gameOver.show();
-                this.startGameClick.showElement();
-            }, 1500);
-        }
+        this.gameOverOutput();       
 
         if (this.gameOver.isShow) { return; } // stop draw iteration
 
@@ -157,6 +173,71 @@ class World {
         requestAnimationFrame(() => {
             self.draw();
         });
+    }
+
+    gameOverOutput(){
+        if (this.character.isDeath()) {
+            setTimeout(() => {
+                this.gameOver.show();
+                this.startGameClick.showElement();
+            }, 1500);
+        }
+        if (this.notEnoughBotttles() && !this.levelFinished()) {
+            setTimeout(() => {
+                this.gameOver.show();
+                this.gameOver.notEnoughBottlesTxt();
+                this.startGameClick.showElement();
+            }, 3000);
+        }
+        if (this.endbossIsRunningAway() && !this.levelFinished()) {
+            setTimeout(() => {
+                this.gameOver.show();
+                this.gameOver.endbossIsRunningAwayTxt();
+                this.startGameClick.showElement();
+            }, 1000);
+        }
+    }
+
+    endbossIsRunningAway(){
+        if(this.getEndbossPosition() < -1000){ return true; }
+        return false;
+    }
+
+    getCountCollectableBottles(){
+        let n = 0;
+        this.level.collectableObjects.forEach((elm)=>{
+            if(elm instanceof Bottle){ n++; }
+        });
+        return n;
+    }
+
+    getEndbossEnergy(){
+        for(let i = 0; i < this.level.enemies.length; i++){
+            if(this.level.enemies[i] instanceof Endboss){
+                return this.level.enemies[i].energy;
+            }
+        }
+        return;
+    }
+
+    getEndbossPosition(){
+        for(let i = 0; i < this.level.enemies.length; i++){
+            if(this.level.enemies[i] instanceof Endboss){
+                return this.level.enemies[i].x;
+            }
+        }
+        return;
+    }
+
+    notEnoughBotttles(){
+        let nCollectableBottles = this.getCountCollectableBottles();
+        let nObjectsToThrow = this.throwableObjects.length;
+        let sum = nCollectableBottles + nObjectsToThrow;
+        let canMaximumSubtractEnergy = sum * 25;
+        if(this.getEndbossEnergy() - canMaximumSubtractEnergy > 0){
+            return true;
+        }
+        return false;
     }
 
     addObjectsToMap(objects) {
@@ -169,6 +250,7 @@ class World {
         this.character.world = this;
         this.coinInfo.world = this;
         this.fullscreen.world = this;
+        this.gameOver.world = this;
         this.clickNextLevel.world = this;
         this.startGameClick.world = this;
         this.startScreen.world = this;
@@ -223,7 +305,7 @@ class World {
                 if (!this.character.isHurt()) { this.character.playHurtSound(); } // play one time
                 // character is colliding with enemy
                 this.character.hit();
-                this.statusBar.setPercentage(this.character.energy);
+                this.energyCharacter.setPercentage(this.character.energy);
             }
         });
     }
@@ -241,6 +323,7 @@ class World {
                 if (this.throwableObjects[0].isColliding(enemy)) {
                     this.throwableObjects[0].isBroken = true;
                     enemy.hit();
+                    if(enemy instanceof Endboss){ this.energyEndboss.setPercentage(enemy.energy); }
                 }
             });
             // play sound
@@ -273,13 +356,13 @@ class World {
     }
 
     allCoinsCollected() {
-        let collectedAllCoins = true;
+        let allCollected = true;
         this.level.collectableObjects.forEach((e) => {
             if (e instanceof Coin) {
-                collectedAllCoins = false;
+                allCollected = false;
             }
         });
-        return collectedAllCoins;
+        return allCollected;
     }
 
     collectObject() {

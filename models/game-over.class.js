@@ -27,4 +27,15 @@ class GameOver extends DrawableObjects{
     click(canvas, mouseClick){
         this.setClickPosition(canvas, mouseClick);
     }
+
+    notEnoughBottlesTxt(){
+        this.world.ctx = this.textFont(this.world.ctx);
+        this.world.ctx.fillText(`NOT ENOUGH BOTTLES`, 220, 80);  
+        this.world.ctx.fillText(`TO KILL THE BOSS !`, 250, 110);  
+    }
+
+    endbossIsRunningAwayTxt(){
+        this.world.ctx = this.textFont(this.world.ctx);
+        this.world.ctx.fillText(`YOU DON'T KILL THE BOSS`, 180, 80); 
+    }
 }
