@@ -57,6 +57,7 @@ class Character extends MovableObject {
     sleep_sound = new Audio('audio/sleeping.mp3');
     jump_sound = new Audio('audio/jump.mp3');
     hurt_sound = new Audio('audio/hurting.mp3');
+    playSound = true;
 
     constructor() {
         super().loadImage('img/2.Secuencias_Personaje-Pepe-corrección/2.Secuencia_caminata/W-21.png');
@@ -72,9 +73,10 @@ class Character extends MovableObject {
         this.sleep_sound.volume = 0.5;
         this.jump_sound.playbackRate = 2;
 
-        setInterval(() => {
+        let intervalId = setInterval(() => {
             this.applyGravity();
         }, 1000 / 25);
+        this.intervalIds.push(intervalId);
     }
 
     playHurtSound() {
@@ -82,20 +84,20 @@ class Character extends MovableObject {
     }
 
     animate() {
-        setInterval(() => {
+        let intervalId = setInterval(() => {
             this.walking_sound.pause();
 
             if (!this.world.startScreen.isShow && !this.world.gameOver.isShow) {
                 if (this.world.keyboard.RIGHT && this.x < this.world.level.level_end_x) {
                     this.moveRight();
-                    this.walking_sound.play();
+                    if(this.playSound){this.walking_sound.play();}
                     this.otherDirection = false;
                     this.isMovingTimestamp();
                 }
 
                 if (this.world.keyboard.LEFT && this.x > -600) {
                     this.moveLeft();
-                    this.walking_sound.play();
+                    if(this.playSound){this.walking_sound.play();}
                     this.otherDirection = true;
                     this.isMovingTimestamp();
                 }
@@ -103,15 +105,16 @@ class Character extends MovableObject {
                 if (this.world.keyboard.SPACE && !this.isAboveGround()) {
                     this.jump();
                     this.isMovingTimestamp();
-                    this.jump_sound.play();
+                    if(this.playSound){this.jump_sound.play();}
                 }
 
                 this.world.camera_x = -this.x + 100;
             }
 
         }, 1000 / 60);
+        this.intervalIds.push(intervalId);
 
-        setInterval(() => {
+        intervalId = setInterval(() => {
             this.sleep_sound.pause();
 
             if (!this.world.startScreen.isShow && !this.world.gameOver.isShow) {
@@ -136,5 +139,6 @@ class Character extends MovableObject {
                 }
             }
         }, 1000 / 20);
+        this.intervalIds.push(intervalId);
     }
 }

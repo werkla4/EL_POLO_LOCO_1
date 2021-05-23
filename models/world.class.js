@@ -21,7 +21,7 @@ class World {
     canThrow = true;
     lastThrowTime;
     stopwatch = new Stopwatch();
-    gameEnd = false;
+    score = new Score();
 
     constructor(canvas, keyboard) {
         this.canvas = canvas;
@@ -35,34 +35,92 @@ class World {
 
     loadNextLevel() {
         this.currentLevelId++;
-        if(this.currentLevelId == 1){ this.level = level1; }
-        else if(this.currentLevelId == 2){ this.level = level2; }
+        if (this.currentLevelId == 1) { this.level = level1; }
+        else if (this.currentLevelId == 2) { this.level = level2; }
 
         // reset all and start game
-        this.clickNextLevel.hideElement();
         this.throwableObjects = [];
         this.coinInfo.nCoins = 0;
         this.character.energy = 100;
         this.character.x = 0;
+        this.character.playSound = true;
         this.energyCharacter.setPercentage(100);
         this.energyEndboss.setPercentage(100);
         this.energyEndboss.hide();
+        this.gameOver.isShow = false;
         this.setWorld();
         this.runUpdates();
+        this.draw();
+    }
+
+    cancalAllIntervals(){
+        this.character.intervalIds.forEach((id)=>{ clearInterval(id); });
+        this.level.enemies.forEach((enemy)=> { enemy.intervalIds.forEach((id)=>{ clearInterval(id); }); });
+        this.level.clouds.forEach((cloud)=> { cloud.intervalIds.forEach((id)=>{ clearInterval(id); }); });
+        this.level.collectableObjects.forEach((obj)=> { obj.intervalIds.forEach((id)=>{ clearInterval(id); }); });
     }
 
     runUpdates() {
-        this.lastThrowTime = new Date().getTime() - 2001; // init throwTime
+        this.lastThrowTime = new Date().getTime() - 2001; // init throwTime 
 
-        let interval = setInterval(() => { 
-
+        let interval = setInterval(() => {
+////////////////// TESTZWECKE ///////////////////////////////////
+            if (!this.startScreen.isShow){
+                this.stopwatch.stopTime();
+                clearInterval(interval);
+                this.pauseAllChickenSounds();
+                this.playWinSound();
+                this.showEndscreen();
+            }
+/////////////////////////////////////////////////////////////////
             if (this.startScreen.isShow) {
-                this.startScreen.waitingForStartingGame();
+                this.stopwatch.showTimeLeftBottom = false;
+                this.startScreen.checkPressEnter();
+            }
+            else if (this.character.isDeath()) {
+                clearInterval(interval);
+                this.stopwatch.stopTime();
+                setTimeout(() => {
+                    this.pauseAllChickenSounds();
+                    this.showGameOver();
+                    this.startGameClick.showElement();
+                }, 1500);
+            }
+            else if (this.notEnoughBotttles() && !this.levelFinished()) {
+                this.stopwatch.stopTime();
+                clearInterval(interval);
+                setTimeout(() => {
+                    this.pauseAllChickenSounds();
+                    this.showGameOver();
+                    this.gameOver.notEnoughBottlesTxt();
+                    this.startGameClick.showElement();
+                }, 3000);
+            }
+            else if (this.endbossIsRunningAway() && !this.levelFinished()) {
+                this.stopwatch.stopTime();
+                clearInterval(interval);
+                setTimeout(() => {
+                    this.pauseAllChickenSounds();
+                    this.showGameOver();
+                    this.gameOver.endbossIsRunningAwayTxt();
+                    this.startGameClick.showElement();
+                }, 1000);
+            }
+            else if (this.levelFinished() && this.gameEnd()) {
+                this.stopwatch.stopTime();
+                clearInterval(interval);
+                this.pauseAllChickenSounds();
+                this.playWinSound();
+                this.showEndscreen();
             }
             else if (this.levelFinished()) {
-                clearInterval(interval);                                          
+                clearInterval(interval);
+                this.preperationNextLevel();
             }
             else {
+                // gaming time:
+                this.stopwatch.showTimeLeftBottom = true;
+                this.clickNextLevel.hideElement();
                 // game updates
                 this.checkCollision();
                 this.checkThrowableObjects();
@@ -70,36 +128,84 @@ class World {
                 this.updateBottleInfo();
                 this.clickNextLevel.update();
                 this.startGameClick.update();
-                this.startScreen.update();                
+                this.startScreen.update();
             }
 
         }, 1000 / 60);
     }
 
-    pauseAllChickenSounds(){
-        this.level.enemies.forEach((enemy)=>{
+    showGameOver() {
+        this.gameOver.show();
+        this.addToMap(this.gameOver);
+    }
+
+    playWinSound() {
+        let winSound = new Audio('audio/win.mp3');
+        winSound.volume = 0.2;
+        winSound.play();
+    }
+
+    preperationNextLevel() {
+        this.stopwatch.addEllapsedTime();
+        this.playWinSound();
+        setTimeout(() => {
+            this.pauseAllChickenSounds();
+            this.aLittleBitDarkerWindow();
+            this.clickNextLevel.showElement();
+            this.gameOver.isShow = true;
+        }, 5000);
+    }
+
+    aLittleBitDarkerWindow() {
+        this.ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    }
+
+    gameEnd() {
+        if (this.currentLevelId == 2) {
+            return true;
+        }
+        return false;
+    }
+
+    reloadWebsite() {
+        window.location.href = '/index.html';
+    }
+
+    pressedEnterNextLevel() {
+        if (this.keyboard.ENTER && this.levelFinished() && this.clickNextLevel.isShow) {
+            console.log('pressedEnterNextLevel');
+            this.loadNextLevel();
+            this.stopwatch.start();
+        }
+    }
+
+    startGame() {
+        this.startScreen.hide();
+        this.startGameClick.hideElement();
+        this.stopwatch.start();
+    }
+
+    pauseAllChickenSounds() {
+        this.level.enemies.forEach((enemy) => {
+            enemy.pauseChickenSound();
+        });
+    }
+
+    showEndscreen() {
+        this.startScreen.playSound();
+        this.pauseAllChickenSounds();
+        this.cancalAllIntervals();
+    }
+
+    pauseAllChickenSounds() {
+        this.level.enemies.forEach((enemy) => {
             enemy.pauseChickenSound();
         });
     }
 
     levelFinished() {
-        if(this.gameEnd) { return true; }
         if (this.allCoinsCollected() && this.endBossIsDeath()) {
-            if(this.currentLevelId == this.lastLevelID){ this.gameEnd = true; }
-            this.stopwatch.addEllapsedTime();
-            let winSound = new Audio('audio/win.mp3');
-            winSound.volume = 0.2;
-            winSound.play();
-            if(this.gameEnd){
-                // show score:
-                console.log(this.stopwatch.sumEllapsedTime());
-                this.startScreen.playSound();
-                this.pauseAllChickenSounds();
-            }else{
-                setTimeout(()=>{
-                    this.clickNextLevel.showElement();
-                }, 5000);  
-            }            
             return true;
         }
         return false;
@@ -136,9 +242,11 @@ class World {
     }
 
     draw() {
+        if (this.gameOver.isShow) { return; }
         // clear screen
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         this.fullscreen.update();
+
         // able camera walking effect
         this.ctx.translate(this.camera_x, 0);
         this.addObjectsToMap(this.level.backgroundObjects);
@@ -155,19 +263,14 @@ class World {
         this.addToMap(this.energyEndboss);
         this.addToMap(this.coinInfo);
         this.addToMap(this.bottleInfo);
-        this.addToMap(this.gameOver);
+        this.addToMap(this.fullscreen);
+        this.addToMap(this.stopwatch);
+        this.addToMap(this.score);
 
         if (this.startScreen.isShow) {
             this.addToMap(this.startScreen);
             this.addToMap(this.startGameClick);
         }
-
-        this.addToMap(this.fullscreen);
-        this.addToMap(this.clickNextLevel);
-
-        this.gameOverOutput();       
-
-        if (this.gameOver.isShow) { return; } // stop draw iteration
 
         let self = this;
         requestAnimationFrame(() => {
@@ -175,66 +278,43 @@ class World {
         });
     }
 
-    gameOverOutput(){
-        if (this.character.isDeath()) {
-            setTimeout(() => {
-                this.gameOver.show();
-                this.startGameClick.showElement();
-            }, 1500);
-        }
-        if (this.notEnoughBotttles() && !this.levelFinished()) {
-            setTimeout(() => {
-                this.gameOver.show();
-                this.gameOver.notEnoughBottlesTxt();
-                this.startGameClick.showElement();
-            }, 3000);
-        }
-        if (this.endbossIsRunningAway() && !this.levelFinished()) {
-            setTimeout(() => {
-                this.gameOver.show();
-                this.gameOver.endbossIsRunningAwayTxt();
-                this.startGameClick.showElement();
-            }, 1000);
-        }
-    }
-
-    endbossIsRunningAway(){
-        if(this.getEndbossPosition() < -1000){ return true; }
+    endbossIsRunningAway() {
+        if (this.getEndbossPosition() < -1000) { return true; }
         return false;
     }
 
-    getCountCollectableBottles(){
+    getCountCollectableBottles() {
         let n = 0;
-        this.level.collectableObjects.forEach((elm)=>{
-            if(elm instanceof Bottle){ n++; }
+        this.level.collectableObjects.forEach((elm) => {
+            if (elm instanceof Bottle) { n++; }
         });
         return n;
     }
 
-    getEndbossEnergy(){
-        for(let i = 0; i < this.level.enemies.length; i++){
-            if(this.level.enemies[i] instanceof Endboss){
+    getEndbossEnergy() {
+        for (let i = 0; i < this.level.enemies.length; i++) {
+            if (this.level.enemies[i] instanceof Endboss) {
                 return this.level.enemies[i].energy;
             }
         }
         return;
     }
 
-    getEndbossPosition(){
-        for(let i = 0; i < this.level.enemies.length; i++){
-            if(this.level.enemies[i] instanceof Endboss){
+    getEndbossPosition() {
+        for (let i = 0; i < this.level.enemies.length; i++) {
+            if (this.level.enemies[i] instanceof Endboss) {
                 return this.level.enemies[i].x;
             }
         }
         return;
     }
 
-    notEnoughBotttles(){
+    notEnoughBotttles() {
         let nCollectableBottles = this.getCountCollectableBottles();
         let nObjectsToThrow = this.throwableObjects.length;
         let sum = nCollectableBottles + nObjectsToThrow;
         let canMaximumSubtractEnergy = sum * 25;
-        if(this.getEndbossEnergy() - canMaximumSubtractEnergy > 0){
+        if (this.getEndbossEnergy() - canMaximumSubtractEnergy > 0) {
             return true;
         }
         return false;
@@ -254,6 +334,8 @@ class World {
         this.clickNextLevel.world = this;
         this.startGameClick.world = this;
         this.startScreen.world = this;
+        this.stopwatch.world = this;
+        this.score.world = this;
         // set world for end Boss
         this.level.enemies.forEach(enemy => {
             if (enemy instanceof Endboss) {
@@ -323,7 +405,7 @@ class World {
                 if (this.throwableObjects[0].isColliding(enemy)) {
                     this.throwableObjects[0].isBroken = true;
                     enemy.hit();
-                    if(enemy instanceof Endboss){ this.energyEndboss.setPercentage(enemy.energy); }
+                    if (enemy instanceof Endboss) { this.energyEndboss.setPercentage(enemy.energy); }
                 }
             });
             // play sound

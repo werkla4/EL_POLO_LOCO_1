@@ -24,11 +24,12 @@ class Chicken extends MovableObject {
     }
 
     animate() {
-        setInterval(() => {
+        let intervalId = setInterval(() => {
             this.moveLeft();
         }, 1000 / 60);
+        this.intervalIds.push(intervalId);
 
-        setInterval(() => {
+        intervalId = setInterval(() => {
             if(this.energy == 0){
                 this.loadImage(this.IMAGE_DEAD[0]);
             }
@@ -36,5 +37,6 @@ class Chicken extends MovableObject {
                 this.playAnimation(this.IMAGES_WALKING, 2);
             }            
         }, 100);
+        this.intervalIds.push(intervalId);
     }
 }

@@ -57,7 +57,7 @@ class Keyboard{
             this.ESC = false;
         }
         else if(e.code == "NumpadEnter" || e.code == "Enter"){
-            this.ENTER = true;            
-        }
+            this.ENTER = false;                   
+        }  
     }
 }

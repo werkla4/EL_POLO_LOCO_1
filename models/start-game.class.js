@@ -29,13 +29,11 @@ class StartGame extends ClickableObjects{
     onClick(){
         if(this.mouseOverElement()){
             if(this.world.startScreen.isShow){
-                this.world.startScreen.hide();
-                this.hideElement();
-                this.world.stopwatch.start();
+                this.world.startGame();
             }            
 
             if(this.world.gameOver.isShow){
-                window.location.href = '/index.html';
+                this.world.reloadWebsite();
             }
         }
     }

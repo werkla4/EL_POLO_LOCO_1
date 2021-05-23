@@ -10,6 +10,7 @@ class DrawableObjects {
 
     imgSize = 1;
     imgSizeSet = true;
+    world;
 
     // loadImages(['img/test1.png', 'img/test2.png', 'img/test3.png']);
     loadImages(paths) {
@@ -18,7 +19,13 @@ class DrawableObjects {
             img.src = path;
             this.imageCache[path] = img;
         });
-    }    
+    } 
+    
+    drawTxt(txt, size, posX, posY, color = 'white'){
+        this.world.ctx.font = `${size}px Arial`;
+        this.world.ctx.fillStyle = color;
+        this.world.ctx.fillText(txt, posX, posY);  
+    }
 
     textFont(ctx){
         ctx.font = "30px Arial white";

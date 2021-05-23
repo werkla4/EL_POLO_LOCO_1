@@ -20,9 +20,9 @@ class StartScreen extends DrawableObjects{
         this.sound.volume = 0.1;
     }
 
-    waitingForStartingGame(){
+    checkPressEnter(){
         if(this.world.keyboard.ENTER){
-            this.hide();
+            this.world.startGame();
         }
     }
 

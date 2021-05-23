@@ -11,11 +11,14 @@ function init(){
 }
 
 window.addEventListener("keydown", (e) => {
-    world.startScreen.playMexicanMusicOnStartScreen();
     keyboard.onKeyDown(e);   
+    world.startScreen.playMexicanMusicOnStartScreen();
+    world.pressedEnterNextLevel();
+    world.score.lastPressedKey(e.key);
 });
 window.addEventListener("keyup", (e) => {
     keyboard.onKeyUp(e);
+    world.score.writeScoreName();
 });
 
 function onClick(e){

@@ -5,11 +5,11 @@ class MovableObject extends DrawableObjects {
     speed_y = 0;
     acceleration = 2.5;
     lastHit = 0;
-    world;
     lastMoveTime = new Date().getTime();
     slowImageIndx = 0;
     chickenSound = new Audio('audio/chickenSound.mp3');
     breakNeckSound = new Audio('audio/breakNeck.mp3');
+    intervalIds = [];
 
     playBreakNeckSound() {
         this.breakNeckSound.play();

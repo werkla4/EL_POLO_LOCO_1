@@ -4,6 +4,7 @@ class ClickNextLevel extends ClickableObjects{
     width = 0;
     height = 0;
     txt = '';
+    isShow = false;
 
     constructor(){
         super();      
@@ -13,13 +14,15 @@ class ClickNextLevel extends ClickableObjects{
         this.width = 0;
         this.height = 0;   
         this.txt = '';
+        this.isShow = false;
     }
 
     showElement(){   
         this.width = 200;
         this.height = 50;   
         this.txt = 'NEXT LEVEL';  
-        this.draw(this.world.ctx);  
+        this.draw(this.world.ctx); 
+        this.isShow = true; 
     }
 
     update(){

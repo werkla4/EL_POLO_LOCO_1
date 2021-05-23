@@ -43,7 +43,7 @@ class Endboss extends MovableObject {
     nBirths = 1;
 
     animate() {
-        setInterval(() => {
+        let intervalId = setInterval(() => {
             if (this.energy == 0) {
                 this.y += 20
                 this.playAnimation(this.IMAGES_DEATH, 5);
@@ -61,10 +61,11 @@ class Endboss extends MovableObject {
                 this.playAnimation(this.IMAGES_WALKING, 1);
             }
         }, 1000 / 5);
+        this.intervalIds.push(intervalId);
     }
 
     update() {
-        setInterval(() => {
+        let intervalId = setInterval(() => {
             if (this.world.character.isDeath()) {
                 this.pauseChickenSound();
             }
@@ -72,6 +73,7 @@ class Endboss extends MovableObject {
                 this.walkToCharacter();
             }
         }, 1000 / 60);
+        this.intervalIds.push(intervalId);
     }
 
     giveBirth() {
