@@ -2,12 +2,14 @@ let canvas;
 let world;
 let keyboard = new Keyboard();
 
-function init(){
+async function init(){
     canvas = document.getElementById('canvas');
     world = new World(canvas, keyboard);
     canvas.addEventListener("click", onClick, false);
     canvas.addEventListener("mousemove", mouseMove, false);
     document.addEventListener("click", documentClick, false);
+    setURL('http://klaus-werner.developerakademie.com/EL_POLO_LOCO_1/small_backend');
+    await downloadFromServer();
 }
 
 window.addEventListener("keydown", (e) => {

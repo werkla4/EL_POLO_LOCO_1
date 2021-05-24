@@ -22,6 +22,7 @@ class World {
     lastThrowTime;
     stopwatch = new Stopwatch();
     score = new Score();
+    gameDone = false;
 
     constructor(canvas, keyboard) {
         this.canvas = canvas;
@@ -53,26 +54,23 @@ class World {
         this.draw();
     }
 
-    cancalAllIntervals(){
-        this.character.intervalIds.forEach((id)=>{ clearInterval(id); });
-        this.level.enemies.forEach((enemy)=> { enemy.intervalIds.forEach((id)=>{ clearInterval(id); }); });
-        this.level.clouds.forEach((cloud)=> { cloud.intervalIds.forEach((id)=>{ clearInterval(id); }); });
-        this.level.collectableObjects.forEach((obj)=> { obj.intervalIds.forEach((id)=>{ clearInterval(id); }); });
+    cancelAllIntervals() {
+        this.character.intervalIds.forEach((id) => { clearInterval(id); });
+        this.level.enemies.forEach((enemy) => { enemy.intervalIds.forEach((id) => { clearInterval(id); }); });
+        this.level.clouds.forEach((cloud) => { cloud.intervalIds.forEach((id) => { clearInterval(id); }); });
+        this.level.collectableObjects.forEach((obj) => { obj.intervalIds.forEach((id) => { clearInterval(id); }); });
     }
 
     runUpdates() {
         this.lastThrowTime = new Date().getTime() - 2001; // init throwTime 
 
         let interval = setInterval(() => {
-////////////////// TESTZWECKE ///////////////////////////////////
-            if (!this.startScreen.isShow){
-                this.stopwatch.stopTime();
-                clearInterval(interval);
-                this.pauseAllChickenSounds();
-                this.playWinSound();
-                this.showEndscreen();
-            }
-/////////////////////////////////////////////////////////////////
+            ////////////////// TESTZWECKE ///////////////////////////////////
+            // if (!this.startScreen.isShow) {
+            //     clearInterval(interval);
+            //     this.showEndscreen();
+            // }
+            /////////////////////////////////////////////////////////////////
             if (this.startScreen.isShow) {
                 this.stopwatch.showTimeLeftBottom = false;
                 this.startScreen.checkPressEnter();
@@ -107,10 +105,7 @@ class World {
                 }, 1000);
             }
             else if (this.levelFinished() && this.gameEnd()) {
-                this.stopwatch.stopTime();
                 clearInterval(interval);
-                this.pauseAllChickenSounds();
-                this.playWinSound();
                 this.showEndscreen();
             }
             else if (this.levelFinished()) {
@@ -193,9 +188,15 @@ class World {
     }
 
     showEndscreen() {
+        this.gameDone = true;
+        this.stopwatch.stopTime();
+        this.playWinSound();
         this.startScreen.playSound();
         this.pauseAllChickenSounds();
-        this.cancalAllIntervals();
+        this.cancelAllIntervals();
+        this.score.yourTime = this.stopwatch.round(this.stopwatch.currentEllapsedTime()); 
+        this.score.updateScoreList();
+        this.score.show = true;
     }
 
     pauseAllChickenSounds() {
@@ -264,13 +265,13 @@ class World {
         this.addToMap(this.coinInfo);
         this.addToMap(this.bottleInfo);
         this.addToMap(this.fullscreen);
-        this.addToMap(this.stopwatch);
-        this.addToMap(this.score);
+        this.addToMap(this.stopwatch);        
 
         if (this.startScreen.isShow) {
             this.addToMap(this.startScreen);
             this.addToMap(this.startGameClick);
         }
+        this.addToMap(this.score);
 
         let self = this;
         requestAnimationFrame(() => {

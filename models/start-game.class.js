@@ -32,7 +32,7 @@ class StartGame extends ClickableObjects{
                 this.world.startGame();
             }            
 
-            if(this.world.gameOver.isShow){
+            if(this.world.gameOver.isShow || this.world.gameDone){
                 this.world.reloadWebsite();
             }
         }
